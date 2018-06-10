@@ -41,12 +41,20 @@ def softmax_loss_naive(W, X, y, reg):
     partial_loss = 0
     for j in range(num_classes):
       partial_loss += np.exp(f[j])
+      softmax_res = np.exp(f[j]) / np.sum(np.exp(f))
+
+      if j == y[i]:
+        dW[:, j] += (-1 + softmax_res) * X[i]
+      else:
+        dW[:, j] += softmax_res * X[i]
 
     loss += np.log(partial_loss)
 
   loss /= num_train
+  dW /= num_train
 
   loss += reg * np.sum(W * W)
+  dW += 2 * reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
