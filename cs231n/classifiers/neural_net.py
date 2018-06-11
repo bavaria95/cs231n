@@ -77,9 +77,9 @@ class TwoLayerNet(object):
     #############################################################################
     h1 = X.dot(W1) + b1
 
-    h1_relu = np.maximum(0, h1)
+    h1 = np.maximum(0, h1) # ReLU
 
-    scores = h1_relu.dot(W2) + b2
+    scores = h1.dot(W2) + b2
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -112,7 +112,20 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+
+    dscores = np.exp(scores) / np.sum(np.exp(scores), axis=1).reshape(-1, 1)
+    dscores[range(N), list(y)] -= 1
+    dscores /= N
+
+    grads['W2'] = h1.T.dot(dscores) + 2 * reg * W2
+    grads['b2'] = np.sum(dscores, axis=0)
+
+    dh1 = dscores.dot(W2.T)
+    dh1_relu = (h1 > 0) * dh1
+
+    grads['W1'] = X.T.dot(dh1_relu) + 2 * reg * W1
+    grads['b1'] = np.sum(dh1_relu, axis=0)
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
