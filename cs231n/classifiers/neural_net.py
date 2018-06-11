@@ -98,7 +98,8 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
 
-    loss =  np.average(-scores[range(N), list(y)] + np.log(np.sum(np.exp(scores), axis=1))) + \
+    scores_norm = scores - np.max(scores, axis=1).reshape(-1, 1)
+    loss =  np.average(-scores_norm[range(N), list(y)] + np.log(np.sum(np.exp(scores_norm), axis=1))) + \
           reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
     #############################################################################
@@ -113,7 +114,7 @@ class TwoLayerNet(object):
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
 
-    dscores = np.exp(scores) / np.sum(np.exp(scores), axis=1).reshape(-1, 1)
+    dscores = np.exp(scores_norm) / np.sum(np.exp(scores_norm), axis=1).reshape(-1, 1)
     dscores[range(N), list(y)] -= 1
     dscores /= N
 
