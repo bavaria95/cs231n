@@ -47,7 +47,13 @@ class TwoLayerNet(object):
         # and biases using the keys 'W1' and 'b1' and second layer                 #
         # weights and biases using the keys 'W2' and 'b2'.                         #
         ############################################################################
-        pass
+        self.params['W1'] = np.random.normal(size=(input_dim, hidden_dim),
+                                             scale=weight_scale)
+        self.params['W2'] = np.random.normal(size=(hidden_dim, num_classes),
+                                             scale=weight_scale)
+
+        self.params['b1'] = np.zeros(hidden_dim)
+        self.params['b2'] = np.zeros(num_classes)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -77,7 +83,15 @@ class TwoLayerNet(object):
         # TODO: Implement the forward pass for the two-layer net, computing the    #
         # class scores for X and storing them in the scores variable.              #
         ############################################################################
-        pass
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+        N, D = X.shape
+
+        h1 = X.dot(W1) + b1
+
+        h1 = np.maximum(0, h1) # ReLU
+
+        scores = h1.dot(W2) + b2
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -97,7 +111,9 @@ class TwoLayerNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
-        pass
+        scores_norm = scores - np.max(scores, axis=1).reshape(-1, 1)
+        loss =  np.average(-scores_norm[range(N), list(y)] + np.log(np.sum(np.exp(scores_norm), axis=1))) + \
+                0.5 * self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
