@@ -85,14 +85,12 @@ class TwoLayerNet(object):
         ############################################################################
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
+
         N = X.shape[0]
-        X_vec = X.reshape(N, -1)
 
-        h1 = X_vec.dot(W1) + b1
+        h1_out, h1_cache = affine_relu_forward(X, W1, b1)
+        scores, out_cache = affine_forward(h1_out, W2, b2)
 
-        h1 = np.maximum(0, h1) # ReLU
-
-        scores = h1.dot(W2) + b2
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -112,22 +110,18 @@ class TwoLayerNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
-        scores_norm = scores - np.max(scores, axis=1).reshape(-1, 1)
-        loss =  np.average(-scores_norm[range(N), list(y)] + np.log(np.sum(np.exp(scores_norm), axis=1))) + \
-                0.5 * self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
-        dscores = np.exp(scores_norm) / np.sum(np.exp(scores_norm), axis=1).reshape(-1, 1)
-        dscores[range(N), list(y)] -= 1
-        dscores /= N
+        loss, dscores = softmax_loss(scores, y)
+        loss += 0.5 * self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
-        grads['W2'] = h1.T.dot(dscores) + 2 * self.reg * W2
-        grads['b2'] = np.sum(dscores, axis=0)
+        dx2, dw2, db2 = affine_backward(dscores, out_cache)
+        grads['W2'] = dw2 + self.reg * W2
+        grads['b2'] = db2
 
-        dh1 = dscores.dot(W2.T)
-        dh1_relu = (h1 > 0) * dh1
+        dx1, dw1, db1 = affine_relu_backward(dx2, h1_cache)
+        grads['W1'] = dw1 + self.reg * W1
+        grads['b1'] = db1
 
-        grads['W1'] = X_vec.T.dot(dh1_relu) + 2 * self.reg * W1
-        grads['b1'] = np.sum(dh1_relu, axis=0)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
