@@ -189,15 +189,16 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zeros.                               #
         ############################################################################
         prev = input_dim
+
         for i, hidden_dim in enumerate(hidden_dims):
-            self.params['W%s' % i] = np.random.normal(size=(prev, hidden_dim),
+            self.params['W%s' % (i + 1)] = np.random.normal(size=(prev, hidden_dim),
                                                       scale=weight_scale)
-            self.params['b%s' % i] = np.zeros(hidden_dim)
+            self.params['b%s' % (i + 1)] = np.zeros(hidden_dim)
             prev = hidden_dim
 
-        self.params['W%s' % (i + 1)] = np.random.normal(size=(hidden_dim, num_classes),
+        self.params['W%s' % (i + 2)] = np.random.normal(size=(hidden_dim, num_classes),
                                                         scale=weight_scale)
-        self.params['b%s' % (i + 1)] = np.zeros(num_classes)
+        self.params['b%s' % (i + 2)] = np.zeros(num_classes)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -256,7 +257,19 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
-        pass
+
+        cache = {}
+        layer_input = X
+
+        for i in range(1, self.num_layers):
+            layer_input, cache[i] = affine_relu_forward(layer_input,
+                                                        self.params['W%s' % i],
+                                                        self.params['b%s' % i])
+
+        scores, cache[i + 1] = affine_forward(layer_input,
+                                              self.params['W%s' % (i + 1)],
+                                              self.params['b%s' % (i + 1)])
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
