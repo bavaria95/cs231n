@@ -194,6 +194,11 @@ class FullyConnectedNet(object):
             self.params['W%s' % (i + 1)] = np.random.normal(size=(prev, hidden_dim),
                                                       scale=weight_scale)
             self.params['b%s' % (i + 1)] = np.zeros(hidden_dim)
+
+            if self.normalization == 'batchnorm':
+                self.params['beta%s' % (i + 1)] = np.zeros(hidden_dim)
+                self.params['gamma%s' % (i + 1)] = np.ones(hidden_dim)
+
             prev = hidden_dim
 
         self.params['W%s' % (i + 2)] = np.random.normal(size=(hidden_dim, num_classes),
