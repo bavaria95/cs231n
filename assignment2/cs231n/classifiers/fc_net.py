@@ -267,9 +267,18 @@ class FullyConnectedNet(object):
         layer_input = X
 
         for i in range(1, self.num_layers):
-            layer_input, cache[i] = affine_relu_forward(layer_input,
-                                                        self.params['W%s' % i],
-                                                        self.params['b%s' % i])
+            if self.normalization == 'batchnorm':
+                layer_input, cache[i] = affine_bn_relu_forward(
+                                                    layer_input, 
+                                                    self.params['W%s' % i],
+                                                    self.params['b%s' % i],
+                                                    self.params['gamma%s' % i],
+                                                    self.params['beta%s' % i],
+                                                    self.bn_params[i - 1])
+            else:
+                layer_input, cache[i] = affine_relu_forward(layer_input,
+                                                            self.params['W%s' % i],
+                                                            self.params['b%s' % i])
 
         scores, cache[i + 1] = affine_forward(layer_input,
                                               self.params['W%s' % (i + 1)],
