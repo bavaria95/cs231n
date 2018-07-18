@@ -316,9 +316,16 @@ class FullyConnectedNet(object):
         grads['b%s' % (self.num_layers)] = db
 
         for i in range(self.num_layers - 1, 0, -1):
-            dx, dw, db = affine_relu_backward(dx, cache[i])
-            grads['W%s' % i] = dw + self.reg * self.params['W%s' % i]
-            grads['b%s' % i] = db
+            if self.normalization == 'batchnorm':
+                dx, dw, db, dgamma, dbeta = affine_bn_relu_backward(dx, cache[i])
+                grads['W%s' % i] = dw + self.reg * self.params['W%s' % i]
+                grads['b%s' % i] = db
+                grads['gamma%s' % i] = dgamma
+                grads['beta%s' % i] = dbeta
+            else:
+                dx, dw, db = affine_relu_backward(dx, cache[i])
+                grads['W%s' % i] = dw + self.reg * self.params['W%s' % i]
+                grads['b%s' % i] = db
 
         ############################################################################
         #                             END OF YOUR CODE                             #
