@@ -341,7 +341,13 @@ def layernorm_forward(x, gamma, beta, ln_param):
     # transformations you could perform, that would enable you to copy over   #
     # the batch norm code and leave it almost unchanged?                      #
     ###########################################################################
-    pass
+    sample_mean = np.mean(x, axis=1, keepdims=True)
+    sample_var = np.var(x, axis=1, keepdims=True)
+
+    xt = (x - sample_mean) / (sample_var + eps)**0.5
+
+    out = gamma * xt + beta
+    cache = (gamma, x, sample_mean, sample_var, eps, xt)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
