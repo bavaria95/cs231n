@@ -57,7 +57,10 @@ def affine_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
-    N = x.shape[0]
+    try:
+        N = x.shape[0]
+    except:
+        print(x)
     X = x.reshape(N, -1)
     dx = dout.dot(w.T)
     dx = dx.reshape(x.shape)
